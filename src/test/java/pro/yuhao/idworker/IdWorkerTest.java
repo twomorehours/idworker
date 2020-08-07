@@ -13,7 +13,7 @@ public class IdWorkerTest {
 
         WorkerIdAllocator workerIdAllocator = new RedisSetWorkerIdAllocator(jedis);
 
-        IDWorkerFactory idWorkerFactory = new IDWorkerFactory(workerIdAllocator);
+        IDWorkerFactory idWorkerFactory = new IDWorkerFactory("test_app",workerIdAllocator);
 
         IDWorker idWorker = idWorkerFactory.create(1);
 

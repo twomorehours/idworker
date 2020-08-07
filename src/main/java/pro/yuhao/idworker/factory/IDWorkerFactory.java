@@ -2,6 +2,7 @@ package pro.yuhao.idworker.factory;
 
 import pro.yuhao.idworker.allocator.WorkerIdAllocator;
 import pro.yuhao.idworker.worker.IDWorker;
+
 import javax.annotation.PreDestroy;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,9 +19,15 @@ public class IDWorkerFactory {
      */
     private WorkerIdAllocator allocator;
 
+    /**
+     * 服务名
+     */
+    private String app;
 
-    public IDWorkerFactory(WorkerIdAllocator allocator) {
+
+    public IDWorkerFactory(String app, WorkerIdAllocator allocator) {
         this.allocator = allocator;
+        this.app = app;
     }
 
     /**
@@ -33,7 +40,7 @@ public class IDWorkerFactory {
     public synchronized IDWorker create(int bizId) {
         IDWorker idWorker = workers.get(bizId);
         if (idWorker == null) {
-            idWorker = new IDWorker(bizId, allocator.allocate(bizId));
+            idWorker = new IDWorker(bizId, allocator.allocate(app, bizId));
             workers.put(bizId, idWorker);
         }
         return idWorker;
@@ -45,6 +52,7 @@ public class IDWorkerFactory {
      */
     @PreDestroy
     public void recycleIDWorker() {
-        workers.values().forEach(worker -> allocator.recycle(worker.getBizId(), worker.getWorkerId()));
+        workers.values().forEach(
+                worker -> allocator.recycle(app, worker.getBizId(), worker.getWorkerId()));
     }
 }
