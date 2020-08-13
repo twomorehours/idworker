@@ -21,12 +21,12 @@ public class RedisSetWorkerIdAllocator implements WorkerIdAllocator {
     }
 
     @Override
-    public int allocate(String app, int bizId) {
+    public int allocate(String app) {
         return Integer.parseInt(jedis.srandmember(ID_SET_PREFIX + app));
     }
 
     @Override
-    public void recycle(String app, int bizId, int workerId) {
+    public void recycle(String app, int workerId) {
         jedis.sadd(ID_SET_PREFIX + app, workerId + "");
     }
 }

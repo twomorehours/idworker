@@ -24,6 +24,11 @@ public class IDWorkerFactory {
      */
     private String app;
 
+    /**
+     * 节点id
+     */
+    private int workerId = -1;
+
 
     public IDWorkerFactory(String app, WorkerIdAllocator allocator) {
         this.allocator = allocator;
@@ -38,9 +43,12 @@ public class IDWorkerFactory {
      * @return
      */
     public synchronized IDWorker create(int bizId) {
+        if (workerId == -1) {
+            workerId = allocator.allocate(app);
+        }
         IDWorker idWorker = workers.get(bizId);
         if (idWorker == null) {
-            idWorker = new IDWorker(bizId, allocator.allocate(app, bizId));
+            idWorker = new IDWorker(bizId, workerId);
             workers.put(bizId, idWorker);
         }
         return idWorker;
@@ -52,7 +60,8 @@ public class IDWorkerFactory {
      */
     @PreDestroy
     public void recycleIDWorker() {
-        workers.values().forEach(
-                worker -> allocator.recycle(app, worker.getBizId(), worker.getWorkerId()));
+        if (workerId != -1) {
+            allocator.recycle(app, workerId);
+        }
     }
 }
